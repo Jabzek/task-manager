@@ -124,6 +124,15 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 
-# Set the chosen class as a default user model
+# Default user model
 
 AUTH_USER_MODEL = 'users.User'
+
+
+# Default settings for the whole DRF project
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication"
+    )
+}
