@@ -13,11 +13,13 @@ def api_client():
 @pytest.mark.django_db
 @pytest.mark.parametrize("data, expected_status, expected_users_in_db", (
     # Correct data
-    ({"username": "user123", "password": "password123321"}, 201, 1),
-    # Data without password
+    ({"username": "user123", "password": "password123321", "password_confirmation": "password123321"}, 201, 1),
+    # Data without passwords
     ({"username": "user321"}, 400, 0),
     # Data without username
-    ({"password": "PASORD"}, 400, 0))
+    ({"password": "PASORD", "password_confirmation": "PASORD"}, 400, 0),
+    # Data with different passwords
+    ({"username": "user1", "password": "pas321", "password_confirmation": "pas123"}, 400, 0))
 )
 def test_user_registration(api_client, data, expected_status, expected_users_in_db):
     url = "/api/users/registration/"
