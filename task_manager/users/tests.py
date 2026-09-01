@@ -9,6 +9,10 @@ User = get_user_model()
 def api_client():
     return APIClient()
 
+@pytest.fixture
+def test_user(db):
+    return User.objects.create_user(username="John321", password="password!321")
+
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("data, expected_status, expected_users_in_db", (
@@ -38,8 +42,7 @@ def test_user_registration(api_client, data, expected_status, expected_users_in_
     # Wrong password
     ({"username": "John321", "password": "password?123"}, 401))
 )
-def test_user_login(api_client, data, expected_status):
-    User.objects.create_user(username="John321", password="password!321")
+def test_user_login(api_client, test_user, data, expected_status):
     url = "/api/users/login/"
     response = api_client.post(url, data, format="json")
 
@@ -57,12 +60,11 @@ def test_user_login(api_client, data, expected_status):
     # Expired token
     (False, 401))
 )
-def test_token_refresh(api_client, is_token_valid, expected_status):
-    user = User.objects.create_user(username="John321", password="password!321")
+def test_token_refresh(api_client, test_user, is_token_valid, expected_status):
     url = "/api/users/token/refresh/"
 
     if is_token_valid:
-        refresh_token = str(RefreshToken.for_user(user))
+        refresh_token = str(RefreshToken.for_user(test_user))
         data = {"refresh": refresh_token}
     else:
         data = {"refresh": "fake_token"}
