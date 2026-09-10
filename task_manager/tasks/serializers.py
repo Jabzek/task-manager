@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.utils import timezone 
 from .models import Task
 
-class TaskCreationSerializer(serializers.ModelSerializer):
+class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ("id", "title", "description", "deadline", "status", "priority", "created_at")
