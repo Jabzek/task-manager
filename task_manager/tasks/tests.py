@@ -113,3 +113,26 @@ def test_delete_task_unauthenticated(api_client, test_task):
     response = api_client.delete(url)
 
     assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_get_task_detail(api_client, test_task):
+    url = f"/api/tasks/{test_task.id}/"
+    api_client.force_authenticate(user=test_task.user)
+    response = api_client.get(url)
+
+    assert response.status_code == 200
+    assert response.data["id"] == test_task.id
+    assert response.data["title"] == test_task.title
+    assert response.data["status"] == test_task.status
+
+
+@pytest.mark.django_db
+def test_get_task_detail_by_other_user(api_client, test_task):
+    other_user = User.objects.create_user(username="other_user", password="12345")
+
+    url = f"/api/tasks/{test_task.id}/"
+    api_client.force_authenticate(user=other_user)
+    response = api_client.get(url)
+
+    assert response.status_code == 404

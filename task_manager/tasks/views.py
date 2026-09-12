@@ -32,3 +32,9 @@ class TaskDetailView(APIView):
         task = get_object_or_404(Task, id=pk, user=request.user)
         task.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+    def get(self, request, pk):
+        task = get_object_or_404(Task, id=pk, user=request.user)
+        serializer = TaskSerializer(instance=task)
+        return Response(serializer.data, status=status.HTTP_200_OK)
