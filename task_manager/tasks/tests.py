@@ -26,6 +26,27 @@ def test_task(db, test_user):
         user = test_user
     )
 
+@pytest.fixture
+def test_tasks_set(db, test_user):
+    now = timezone.now()
+    tasks = []
+
+    tasks.append(
+        Task(user=test_user, title="Urgent", status="IP", priority="H", deadline=now)
+    )
+
+    tasks.append(
+        Task(user=test_user, title="Finished", status="D", priority="L", deadline=now - timedelta(days=1))
+    )
+
+    for i in range(1, 16):
+        tasks.append(
+            Task(user=test_user, title=f"Task {i}", status="TD", priority="M", deadline=now + timedelta(days=i))
+        )
+
+    Task.objects.bulk_create(tasks)
+    return test_user
+
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("data, expected_status, expected_tasks_in_db",(
@@ -136,3 +157,31 @@ def test_get_task_detail_by_other_user(api_client, test_task):
     response = api_client.get(url)
 
     assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_get_task_list(api_client, test_tasks_set):
+    api_client.force_authenticate(user=test_tasks_set)
+
+    page1_response = api_client.get("/api/tasks/")
+    page2_response = api_client.get("/api/tasks/?page=2")
+
+    assert page1_response.status_code == 200
+    assert page1_response.data["count"] == 17
+    assert len(page1_response.data["results"]) == 15
+    assert page1_response.data["next"] is not None
+    assert page1_response.data["previous"] is None
+
+    assert page1_response.data["results"][0]["title"] == "Urgent"
+    assert page2_response.data["results"][-1]["title"] == "Finished"
+
+
+@pytest.mark.django_db
+def test_get_task_list_filtering(api_client, test_tasks_set):
+    api_client.force_authenticate(user=test_tasks_set)
+
+    response = api_client.get("/api/tasks/?status=IP")
+
+    assert response.status_code == 200
+    assert response.data["count"] == 1
+    assert response.data["results"][0]["title"] == "Urgent"
