@@ -7,17 +7,6 @@ from rest_framework.pagination import PageNumberPagination
 from .serializers import TaskSerializer, TaskListSerializer
 from .models import Task
 
-class TaskCreationView(APIView):
-    def post(self, request):
-        serializer = TaskSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-
-
 class TaskDetailView(APIView):
     def patch(self, request, pk):
         task = get_object_or_404(Task, id=pk, user=request.user)
@@ -74,3 +63,13 @@ class TaskListView(APIView):
         serializer = TaskListSerializer(paginated_queryset, many=True)
 
         return paginator.get_paginated_response(serializer.data)
+
+
+    def post(self, request):
+        serializer = TaskSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 

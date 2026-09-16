@@ -45,7 +45,7 @@ def test_task(db, test_user):
       "status": "Finished", "priority": "K"}, 400, 0))    
 )
 def test_create_task_authenticated(api_client, test_user, data, expected_status, expected_tasks_in_db):
-    url = "/api/tasks/creation/"
+    url = "/api/tasks/"
     api_client.force_authenticate(user=test_user)
     response = api_client.post(url, data, format="json") 
 
@@ -59,7 +59,7 @@ def test_create_task_authenticated(api_client, test_user, data, expected_status,
 
 @pytest.mark.django_db
 def test_create_task_unauthenticated(api_client, test_user):
-    url = "/api/tasks/creation/"
+    url = "/api/tasks/"
     data = {"title": "Title1", "description": "Task description", 
       "deadline": timezone.now() + timedelta(days=30),
       "status": "IP", "priority": "M"}
