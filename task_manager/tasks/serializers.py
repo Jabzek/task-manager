@@ -12,3 +12,9 @@ class TaskSerializer(serializers.ModelSerializer):
         if value < timezone.now():
             raise serializers.ValidationError("The deadline can not be from past.")
         return value
+
+
+class TaskListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = ("id", "title", "deadline", "status", "priority")
