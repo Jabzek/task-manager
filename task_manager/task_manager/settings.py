@@ -44,9 +44,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'tasks',
     'users',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -139,3 +141,10 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     )
 }
+
+
+# List of the URL addresses which can request data from the API
+
+CORS_ALLOWED_ORIGINS = [
+
+]
