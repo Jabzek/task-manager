@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'tasks',
     'users',
     'corsheaders',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -139,7 +140,8 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
-    )
+    ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema"
 }
 
 
@@ -148,3 +150,11 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
 
 ]
+
+
+# Settings for API documentation
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Task Manager API",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False
+}
