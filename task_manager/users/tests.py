@@ -1,7 +1,10 @@
 import pytest
+from datetime import timedelta
+from django.utils import timezone
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
+from ..tasks.models import Task
 
 User = get_user_model()
 
@@ -75,3 +78,35 @@ def test_token_refresh(api_client, test_user, is_token_valid, expected_status):
 
     if response.status_code == 200:
         assert "access" in response.data
+
+
+@pytest.mark.django_db
+def test_delete_account_with_correct_password(api_client, test_user):
+    Task.objects.create(
+        title = "Title1",
+        description = "123",
+        deadline = timezone.now() + timedelta(days=10),
+        status = "IP",
+        priority = "M",
+        user = test_user
+    )
+
+    url = "api/users/"
+    api_client.force_authenticate(user=test_user)
+    data = {"password": "password!321"}
+    response = api_client.post(url, data, format="json")
+
+    assert response.status_code == 204
+    assert Task.objects.count() == 0
+    assert User.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_delete_account_with_wrong_password(api_client, test_user):
+    url = "api/users/"
+    api_client.force_authenticate(user=test_user)
+    data = {"password": "wrong_password"}
+    response = api_client.post(url, data, format="json")
+
+    assert response.status_code == 400
+    assert User.objects.count() == 1
