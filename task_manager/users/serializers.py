@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-class UserSerializer(serializers.ModelSerializer):
+class UserCreateSerializer(serializers.ModelSerializer):
     password_confirmation = serializers.CharField(write_only=True)
 
     class Meta:
@@ -23,3 +23,11 @@ class UserSerializer(serializers.ModelSerializer):
             username=validated_data["username"],
             password=validated_data["password"])
         return user 
+
+
+class AccountDeleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("password",)
+        extra_kwargs = {"password": {"write_only": True, "style": {"input_type": "password"}}}
+        

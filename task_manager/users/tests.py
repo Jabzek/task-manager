@@ -4,7 +4,7 @@ from django.utils import timezone
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
-from ..tasks.models import Task
+from tasks.models import Task
 
 User = get_user_model()
 
@@ -91,7 +91,7 @@ def test_delete_account_with_correct_password(api_client, test_user):
         user = test_user
     )
 
-    url = "api/users/"
+    url = "/api/users/delete-account/"
     api_client.force_authenticate(user=test_user)
     data = {"password": "password!321"}
     response = api_client.post(url, data, format="json")
@@ -103,7 +103,7 @@ def test_delete_account_with_correct_password(api_client, test_user):
 
 @pytest.mark.django_db
 def test_delete_account_with_wrong_password(api_client, test_user):
-    url = "api/users/"
+    url = "/api/users/delete-account/"
     api_client.force_authenticate(user=test_user)
     data = {"password": "wrong_password"}
     response = api_client.post(url, data, format="json")
