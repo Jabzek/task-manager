@@ -30,4 +30,19 @@ class AccountDeleteSerializer(serializers.ModelSerializer):
         model = User
         fields = ("password",)
         extra_kwargs = {"password": {"write_only": True}}
-        
+
+
+class ChangePasswordSerializer(serializers.ModelSerializer):
+    new_password = serializers.CharField(write_only=True)
+    new_password_confirmation = serializers.CharField(write_only=True)
+    
+    class Meta:
+        model = User
+        fields = ("password", "new_password", "new_password_confirmation")
+        extra_kwargs = {"password": {"write_only": True}}
+
+
+    def validate(self, data):
+        if data["new_password"] != data["new_password_confirmation"]:
+            raise serializers.ValidationError({"new_password_confirmation": "Passwords do not match."})
+        return data

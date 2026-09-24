@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from drf_spectacular.utils import extend_schema
-from .serializers import UserCreateSerializer, AccountDeleteSerializer
+from .serializers import UserCreateSerializer, AccountDeleteSerializer, ChangePasswordSerializer
 
 class RegistrationView(APIView):
     permission_classes = (AllowAny,)
@@ -49,3 +49,32 @@ class DeleteAccountView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChangePasswordView(APIView):
+    @extend_schema(
+        description="Changes the user's password.",
+        request=ChangePasswordSerializer,
+        responses={200: None}
+    )
+    def patch(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+
+        if serializer.is_valid():
+            old_password = serializer.validated_data.get("password")
+            new_password = serializer.validated_data.get("new_password")
+            user = request.user
+
+            if not user.check_password(old_password):
+                return Response(
+                    {"detail": "Provided password is not correct."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            user.set_password(new_password)
+            user.save(update_fields=("password",))
+
+            return Response(status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
