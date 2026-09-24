@@ -26,7 +26,7 @@ class RegistrationView(APIView):
 
 
 class DeleteAccountView(APIView):
-    extend_schema(
+    @extend_schema(
         description="Deletes the user account.",
         request=AccountDeleteSerializer,
         responses={204: None}

@@ -110,3 +110,35 @@ def test_delete_account_with_wrong_password(api_client, test_user):
 
     assert response.status_code == 400
     assert User.objects.count() == 1
+
+
+@pytest.mark.django_db
+def test_change_password(api_client, test_user):
+    url = "/api/users/change-password/"
+    api_client.force_authenticate(user=test_user)
+    data = {"password": "password!321", 
+            "new_password": "password!123", 
+            "new_password_confirmation": "password!123"
+    }
+    response = api_client.patch(url, data, format="json")
+    test_user.refresh_from_db()
+
+    assert response.status_code == 200
+    assert test_user.check_password("password!123")
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("data", (
+    # The new passwords are not the same
+    {"password": "password!321", "new_password": "pass123", "new_password_confirmation": "pass45"},
+    # The old password is incorrect
+    {"password": "password", "new_password": "pass123", "new_password_confirmation": "pass123"}
+))
+def test_change_password_incorrect_input_data(api_client, test_user, data):
+    url = "/api/users/change-password/"
+    api_client.force_authenticate(user=test_user)
+    response = api_client.patch(url, data, format="json")
+    test_user.refresh_from_db()
+
+    assert response.status_code == 400
+    assert test_user.check_password("password!321")
