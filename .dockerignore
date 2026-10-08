@@ -1,0 +1,10 @@
+.git/
+.gitignore
+.github/
+__pycache__/
+venv/
+.pytest_cache/
+*.env
+*.sqlite3
+README.md
+LICENSE
